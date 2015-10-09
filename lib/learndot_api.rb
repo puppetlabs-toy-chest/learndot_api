@@ -3,7 +3,7 @@ require 'json'
 
 class LearndotAPI
   
-  def getToken()
+  def get_token
     token = ENV["MY_TOKEN"]
   
     token_path = "config/.my_token"
@@ -14,8 +14,8 @@ class LearndotAPI
     return token
   end
   
-  def callAPI(entity, conditions = {}, page = 1, search = true)
-    token = getToken()
+  def call_api(entity, conditions = {}, page = 1, search = true)
+    token = get_token()
     url = "https://learn.puppetlabs.com/api/rest/v2/manage/#{entity}"
   
     # url   = "https://puppetlabs-staging.trainingrocket.com/api/rest/v2/manage/#{entity}"
@@ -44,8 +44,8 @@ class LearndotAPI
       body: conditions.to_json }) 
   end
   
-  def getRecords(entity, conditions = {})
-    response = callAPI(entity, conditions)
+  def get_records(entity, conditions = {})
+    response = call_api(entity, conditions)
     num_records = response['size']
     
     if num_records.is_a?(Integer)
@@ -54,7 +54,7 @@ class LearndotAPI
         # start at 2 since first call returned first page
         for counter in 2..pages
           puts "retrieving page #{counter} of #{pages}"
-          results = callAPI(entity, conditions, counter)
+          results = call_api(entity, conditions, counter)
           
           results['results'].each do | result |
             response['results'] << result
@@ -71,8 +71,8 @@ class LearndotAPI
     return result_hash
   end
   
-  def getRecordCount(entity, conditions = {})
-    num_records = callAPI(entity, conditions)['size']
+  def get_record_count(entity, conditions = {})
+    num_records = call_api(entity, conditions)['size']
     return num_records.is_a?(Integer) ? num_records : 'no records found'
   end
 
