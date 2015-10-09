@@ -20,7 +20,7 @@ get '/' do
     'status'    => ['CONFIRMED', 'TENTATIVE'],
   }
       
-  @classes =  getClasses(conditions)
+  @classes =  get_classes(conditions)
   
   @total_enrollments = 0
   @classes.each_value do | klass |
@@ -43,7 +43,7 @@ get '/enrollments' do
     'componentId' => ['1', '2', '3', '5', '44', '45', '160', '195', '196', '197', '201'] 
   }
   
-  @enrollments = getEnrollments(conditions).to_json
+  @enrollments = get_enrollments(conditions).to_json
   erb :enrollments
 end
 
@@ -52,7 +52,7 @@ get '/test' do
     'id' => ['38']
   }
 
-  @results = callAPI(:contact, conditions)
+  @results = call_api(:contact, conditions)
 
   erb :json_view
 end
