@@ -49,7 +49,7 @@ class LearndotAPI
     num_records = response['size']
     
     if num_records.is_a?(Integer)
-      if num_records > 25 && num_records < 500
+      if num_records > 25
         pages = (num_records / 25) + 1
         # start at 2 since first call returned first page
         for counter in 2..pages
