@@ -2,6 +2,10 @@ require 'httparty'
 require 'json'
 
 class LearndotAPI
+
+  def initialize(token = nil)
+    @token = token || get_token
+  end
   
   def get_token
     token = ENV["MY_TOKEN"]
@@ -15,12 +19,11 @@ class LearndotAPI
   end
   
   def call_api(entity, conditions = {}, page = 1, search = true)
-    token = get_token()
     url = "https://learn.puppetlabs.com/api/rest/v2/manage/#{entity}"
   
     # url   = "https://puppetlabs-staging.trainingrocket.com/api/rest/v2/manage/#{entity}"
   
-    headers = { "TrainingRocket-Authorization" => "#{token}", 
+    headers = { "TrainingRocket-Authorization" => "#{@token}", 
           "Content-Type"           => "application/json",
           "Accept"             => "application/json; charset=utf-8" }
       
