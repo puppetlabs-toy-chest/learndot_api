@@ -2,81 +2,123 @@ require 'httparty'
 require 'json'
 
 class LearndotAPI
-
-  def initialize(token = nil)
-    @token = token || get_token
+  def initialize(token = nil, url = nil)
+    @base_url = url ? url : "https://learn.puppetlabs.com/api/rest/v2"
+    
+    token = token || get_token
+    @headers = { 
+      "TrainingRocket-Authorization" => "#{token}", 
+      "Content-Type" => "application/json",
+      "Accept"       => "application/json; charset=utf-8"
+    }
   end
   
+  # Private methods
   def get_token
-    token = ENV["MY_TOKEN"]
-  
     token_path = "config/.my_token"
-    if File.exists?(token_path)
-      token = File.read(token_path).strip
-    end  
-    
-    return token
+    File.exists?(token_path) ? File.read(token_path).strip : ENV["MY_TOKEN"]
   end
   
-  def call_api(entity, conditions = {}, page = 1, search = true)
-    url = "https://learn.puppetlabs.com/api/rest/v2/manage/#{entity}"
-  
-    # url   = "https://puppetlabs-staging.trainingrocket.com/api/rest/v2/manage/#{entity}"
-  
-    headers = { "TrainingRocket-Authorization" => "#{@token}", 
-          "Content-Type"           => "application/json",
-          "Accept"             => "application/json; charset=utf-8" }
-      
-    # default to search true to prevent accidental record creation
-    if search
-      url = url + "/search"
-    end
-    url = url + '?'
-    if page > 1
-      url = url + "page=#{page}&"
-    end 
-    course_entities = [:course_event, :private_course_event, :public_course_event]  
-    if course_entities.include?(entity)
-      url = url + "orderBy=startTime&asc=true&"
-    end
-    
-    puts "call to: " + url 
-    
-    return HTTParty.post(url, {
-      headers: headers,
-      body: conditions.to_json }) 
+  def api_post(endpoint, conditions = {})
+    url = @base_url + endpoint
+    puts "post to: #{url}" 
+    HTTParty.post(url, {
+      headers: @headers,
+      body: conditions.to_json })
   end
   
-  def get_records(entity, conditions = {})
-    response = call_api(entity, conditions)
+  def api_get(endpoint)
+    url = @base_url + endpoint
+    puts "get to: #{url}"
+    HTTParty.get(url, { headers: @headers })
+  end
+  
+  def post_search(endpoint, conditions = {})
+    response = api_post(endpoint, conditions)
     num_records = response['size']
     
-    if num_records.is_a?(Integer)
-      if num_records > 25
-        pages = (num_records / 25) + 1
-        # start at 2 since first call returned first page
-        for counter in 2..pages
-          puts "retrieving page #{counter} of #{pages}"
-          results = call_api(entity, conditions, counter)
-          
-          results['results'].each do | result |
-            response['results'] << result
-          end 
-        end
-      end   
-      
-      result_hash = {}      
+    if num_records.is_a?(Integer) && num_records > 25
+      pages = (num_records / 25) + 1
+      # start at 2 since first call returned first page
+      for counter in 2..pages
+        puts "retrieving page #{counter} of #{pages}"
+        url << "page=#{counter}&"
+        api_post(endpoint, conditions)['results'].each do | result |
+          response['results'] << result
+        end 
+      end
+    end
+
+    hash_response(response)
+  end
+  
+  def hash_response(response)
+    result_hash = {}
+    if response['size'].is_a?(Integer)
       response['results'].each do | result |
         result_hash[result['id']] = result
       end
     end
+    return result_hash  
+  end
+  # End of private methods
+  
+  def search(entity, conditions = {}, orderBy = nil)
+    endpoint = "/manage/#{entity}/search?"
+    endpoint << "orderBy=#{orderBy}&asc=true&" if orderBy
     
-    return result_hash
+    post_search(endpoint, conditions)
   end
   
-  def get_record_count(entity, conditions = {})
-    num_records = call_api(entity, conditions)['size']
-    return num_records.is_a?(Integer) ? num_records : 'no records found'
+  def count(entity, conditions = {})
+    endpoint = "/manage/#{entity}/search"
+    
+    num_records = api_post(endpoint, conditions)['size']
+    num_records.is_a?(Integer) ? num_records : 0
   end
+  
+  # keep seperate from create to avoid accidental record creation
+  def update(entity, conditions, id)
+    endpoint = "/manage/#{entity}/#{id}"
+    api_post(endpoint, conditions)
+  end
+
+  def create(entity, conditions)
+    endpoint = "/manage/#{entity}"
+    api_post(endpoint, conditions)
+  end
+  
+  def find_training_credit_accounts(email)
+    api_get("/credit?email=#{email}")
+  end
+  
+  def create_training_credit_account(conditions)
+    api_post("/credit", conditions)
+  end
+    
+  def adjust_training_credits(tc_account_id, conditions)
+    api_post("credit/#{tc_account_id}/adjust", conditions)
+  end
+  
+  def training_credit_account_history(tc_account_id)
+    response = api_get("/credit/#{tc_account_id}/transactions")
+    num_records = response['size']
+    
+    if num_records.is_a?(Integer) && num_records > 25
+      pages = (num_records / 25) + 1
+      # start at 2 since first call returned first page
+      for counter in 2..pages
+        puts "retrieving page #{counter} of #{pages}"
+        url << "page=#{counter}&"
+        api_post(endpoint, conditions)['results'].each do | result |
+          response['results'] << result
+        end 
+      end
+    end
+
+    hash_response(response)
+  end
+  
+  private :api_post, :api_get, :post_search, :hash_response, :get_token
 
 end

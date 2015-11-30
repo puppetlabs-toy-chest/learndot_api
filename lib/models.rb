@@ -11,27 +11,29 @@ def field_from_entity(field, entity)
 end
 
 def get_classes(conditions)
-  classes = @@ldapi.get_records(:public_course_event, conditions)
+  classes = @@ldapi.search(:public_course_event, conditions, "startTime")
 
-  course_ids = field_from_entity('courseId', classes)
-  courses = @@ldapi.get_records(:course, { 'id' => course_ids.uniq })
-
-  location_ids = field_from_entity('locationId', classes)
-  locations = @@ldapi.get_records(:location, { 'id' => location_ids.uniq})
+  if !classes.empty?
+    course_ids = field_from_entity('courseId', classes)
+    courses = @@ldapi.search(:course, { 'id' => course_ids.uniq })
   
-  total_enrollments = 0
+    location_ids = field_from_entity('locationId', classes)
+    locations = @@ldapi.search(:location, { 'id' => location_ids.uniq})
+    
+    total_enrollments = 0
+    
+    classes.each do | class_id, klass |
+      course = courses[klass['courseId']]
+      klass[:course_name] = course['name']
+      klass['startTime'] = Date.parse(klass['startTime'])
+      klass[:enrollment_count] = get_enrollment_numbers(class_id)
   
-  classes.each do | class_id, klass |
-    course = courses[klass['courseId']]
-    klass[:course_name] = course['name']
-    klass['startTime'] = Date.parse(klass['startTime'])
-    klass[:enrollment_count] = @@ldapi.get_enrollment_numbers(class_id)
-
-    location = locations[klass['locationId']]   
-    if location['online']
-      klass[:city] = location['name']
-    else 
-      klass[:city] = location['address']['city']
+      location = locations[klass['locationId']]   
+      if location['online']
+        klass[:city] = location['name']
+      else 
+        klass[:city] = location['address']['city']
+      end
     end
   end
   
@@ -39,12 +41,12 @@ def get_classes(conditions)
 end
 
 def get_enrollments(enrollment_conditions)
-  enrollments = @@ldapi.get_records(:enrolment, enrollment_conditions)
+  enrollments = @@ldapi.search(:enrolment, enrollment_conditions)
   
   student_ids = field_from_entity('contactId', enrollments)
   
   student_conditions = { 'id' => student_ids.uniq }
-  students = @@ldapi.get_records(:contact, student_conditions)
+  students = @@ldapi.search(:contact, student_conditions)
   
   enrollments.each_value do | enrollment |
     student = students[enrollment['contactId']]
@@ -54,9 +56,9 @@ def get_enrollments(enrollment_conditions)
   return enrollments
 end
 
-def @@ldapi.get_enrollment_numbers(class_id)
+def get_enrollment_numbers(class_id)
   session_conditions = { 'eventId' => [class_id] }
-  course_sessions = @@ldapi.get_records(:course_session, session_conditions)
+  course_sessions = @@ldapi.search(:course_session, session_conditions)
   
   if ! course_sessions.empty?
     enrolment_ids = field_from_entity('enrolmentId', course_sessions)
@@ -64,7 +66,7 @@ def @@ldapi.get_enrollment_numbers(class_id)
       'id' => enrolment_ids,
       'status' => ['TENTATIVE', 'APPROVED', 'CONFIRMED']
     }
-    num_enrollments = get_record_count('enrolment', enrollment_conditions)
+    num_enrollments = @@ldapi.count('enrolment', enrollment_conditions)
   end
   
   return num_enrollments ? num_enrollments : 0
@@ -76,7 +78,7 @@ def get_order_item_enrollments(enrollment_conditions)
   puts order_item_ids
   
   # do not run this until figure out why it returned 2247 pages of records
-  # order_items = @@ldapi.get_records(:order_item, { 'id' => order_item_ids }) 
+  # order_items = @@ldapi.search(:order_item, { 'id' => order_item_ids }) 
   
   # enrollments.each_value do | enrollment |
   #   puts enrollment['orderItemId']
@@ -86,10 +88,10 @@ def get_order_item_enrollments(enrollment_conditions)
 end
 
 def get_course_catalog
-  courses = @@ldapi.get_records(:course)
+  courses = @@ldapi.search(:course)
   
   primary_category_ids = field_from_entity('primaryCategoryId', courses).uniq
-  categories = @@ldapi.get_records(:knowledge_category, { 'id' => primary_category_ids })
+  categories = @@ldapi.search(:knowledge_category, { 'id' => primary_category_ids })
   
   courses.each_value do | course |
     category = categories[course['primaryCategoryId']]
