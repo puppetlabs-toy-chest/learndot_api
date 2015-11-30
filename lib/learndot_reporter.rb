@@ -48,11 +48,6 @@ get '/enrollments' do
 end
 
 get '/test' do
-  conditions = {
-    'id' => ['38']
-  }
-
-  @results = call_api(:contact, conditions)
 
   erb :json_view
 end
