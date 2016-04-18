@@ -3,7 +3,7 @@ require 'json'
 
 class LearndotAPI
   def initialize(token = nil, url = nil)
-    @base_url = url ? url : "https://learn.puppetlabs.com/api/rest/v2"
+    @base_url = url ? url : "https://learn.puppet.com/api/rest/v2"
 
     token = token || get_token
     @headers = {
