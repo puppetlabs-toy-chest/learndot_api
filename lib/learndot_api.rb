@@ -15,8 +15,13 @@ class LearndotAPI
 
   # Private methods
   def get_token
-    token_path = "config/.my_token"
-    File.exists?(token_path) ? File.read(token_path).strip : ENV["MY_TOKEN"]
+    token_path  = File.expand_path('~/.learndot_token')
+    legacy_path = 'config/.my_token'
+
+    path   = token_path if File.exists?(token_path)
+    path ||= legacy_path if File.exists?(legacy_path)
+    
+    defined?(path) ? File.read(path).strip : (ENV['LEARNDOT_TOKEN'] || ENV['MY_TOKEN'])
   end
 
   def api_post(endpoint, conditions = {})
