@@ -24,7 +24,7 @@ def get_classes(conditions)
     
     classes.each do | class_id, klass |
       course = courses[klass['courseId']]
-      klass[:course_name] = course['name']
+      klass[:course_name] = courses['name']
       klass['startTime'] = Date.parse(klass['startTime'])
       klass[:enrollment_count] = get_enrollment_numbers(class_id)
   
