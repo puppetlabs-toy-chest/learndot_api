@@ -7,7 +7,8 @@ class LearndotAPI
 
     token = token || get_token
     @headers = {
-      "Trainingrocket-Authorization" => "#{token}",
+      "TrainingRocket-Authorization"      => token,
+      "Learndot Enterprise-Authorization" => token,
       "Content-Type" => "application/json",
       "Accept"       => "application/json; charset=utf-8"
     }
