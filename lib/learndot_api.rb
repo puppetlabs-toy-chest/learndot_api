@@ -7,7 +7,8 @@ class LearndotAPI
 
     token = token || get_token
     @headers = {
-      "Learndot Enterprise-Authorization" => "#{token}",
+      "TrainingRocket-Authorization"      => token,
+      "Learndot Enterprise-Authorization" => token,
       "Content-Type" => "application/json",
       "Accept"       => "application/json; charset=utf-8"
     }
@@ -15,11 +16,8 @@ class LearndotAPI
 
   # Private methods
   def get_token
-    token_path  = File.expand_path('~/.learndot_token')
-    legacy_path = 'config/.my_token'
-
-    path   = token_path if File.exists?(token_path)
-    path ||= legacy_path if File.exists?(legacy_path)
+    token_path = File.expand_path('~/.learndot_token')
+    path       = token_path if File.exists?(token_path)
     
     defined?(path) ? File.read(path).strip : (ENV['LEARNDOT_TOKEN'] || ENV['MY_TOKEN'])
   end
@@ -41,13 +39,13 @@ class LearndotAPI
   def post_search(endpoint, conditions = {})
     response = api_post(endpoint, conditions)
     num_records = response['size']
-
+    
     if num_records.is_a?(Integer) && num_records > 25
       pages = (num_records / 25) + 1
       # start at 2 since first call returned first page
       for counter in 2..pages
         puts "retrieving page #{counter} of #{pages}"
-        api_post(endpoint + "page=#{counter}&", conditions)['results'].each do | result |
+        api_post(endpoint + "page=#{counter}", conditions)['results'].each do | result |
           response['results'] << result
         end
       end
