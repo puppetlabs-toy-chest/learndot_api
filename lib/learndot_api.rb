@@ -2,11 +2,14 @@ require 'httparty'
 require 'json'
 
 class LearndotAPI
-  def initialize(token = nil, url = nil)
-    @base_url = url ? url : "https://learn.puppet.com/api/rest/v2"
+  attr_writer :debug
 
-    token = token || get_token
-    @headers = {
+  def initialize(token = nil, url = nil, debug = false)
+    token ||= get_token
+
+    @debug    = debug
+    @base_url = url ? url : "https://learn.puppet.com/api/rest/v2"
+    @headers  = {
       "TrainingRocket-Authorization"      => token,
       "Learndot Enterprise-Authorization" => token,
       "Content-Type" => "application/json",
@@ -15,43 +18,43 @@ class LearndotAPI
   end
 
   # Private methods
+  def debug(message)
+    puts message if @debug
+  end
+
   def get_token
-    token_path = File.expand_path('~/.learndot_token')
-    path       = token_path if File.exists?(token_path)
-    
+    token_path  = File.expand_path('~/.learndot_token')
+    legacy_path = 'config/.my_token'
+
+    path   = token_path if File.exists?(token_path)
+    path ||= legacy_path if File.exists?(legacy_path)
+
     defined?(path) ? File.read(path).strip : (ENV['LEARNDOT_TOKEN'] || ENV['MY_TOKEN'])
   end
 
-  def api_post(endpoint, conditions = {})
+  def api_post(endpoint, conditions = {}, query = {})
     url = @base_url + endpoint
-    puts "post to: #{url}"
-    HTTParty.post(url, {
+    debug "post to: #{url} & #{query.inspect}"
+
+    response = HTTParty.post(url, {
       headers: @headers,
-      body: conditions.to_json })
+      query: query,
+      body: conditions.to_json,
+    })
+    raise response.message unless response.code == 200
+
+    sleep 1 # dear god learndot
+    response
   end
 
-  def api_get(endpoint)
+  def api_get(endpoint, query = {})
     url = @base_url + endpoint
-    puts "get to: #{url}"
-    HTTParty.get(url, { headers: @headers })
-  end
+    debug "get to: #{url}"
+    response = HTTParty.get(url, { headers: @headers, query: query })
+    raise response.message unless response.code == 200
 
-  def post_search(endpoint, conditions = {})
-    response = api_post(endpoint, conditions)
-    num_records = response['size']
-    
-    if num_records.is_a?(Integer) && num_records > 25
-      pages = (num_records / 25) + 1
-      # start at 2 since first call returned first page
-      for counter in 2..pages
-        puts "retrieving page #{counter} of #{pages}"
-        api_post(endpoint + "page=#{counter}", conditions)['results'].each do | result |
-          response['results'] << result
-        end
-      end
-    end
-
-    hash_response(response)
+    sleep 1 # dear god learndot
+    response
   end
 
   def hash_response(response)
@@ -65,11 +68,39 @@ class LearndotAPI
   end
   # End of private methods
 
-  def search(entity, conditions = {}, orderBy = nil)
-    endpoint = "/manage/#{entity}/search?"
-    endpoint << "orderBy=#{orderBy}&asc=true&" if orderBy
+  # Call a method provided as a block until there's no more data to get back
+  def page
+    raise 'page() requires a block' unless block_given?
 
-    post_search(endpoint, conditions)
+    response    = yield(1)
+    num_records = response['size']
+
+    if num_records.is_a?(Integer) && num_records > 25
+      pages = (num_records / 25) + 1
+      # start at 2 since first call returned first page
+      for counter in 2..pages
+        debug "retrieving page #{counter} of #{pages}"
+        results = yield(counter)['results']
+        response['results'].concat(results) if results
+      end
+    end
+
+    hash_response(response)
+  end
+
+  def search(entity, conditions = {}, query = {})
+    endpoint        = "/manage/#{entity}/search"
+    query['asc']  ||= false
+    query['or']   ||= false
+
+    if query.include? 'page'
+      api_post(endpoint, conditions, query)
+    else
+      page do |count|
+        query['page'] = count
+        api_post(endpoint, conditions, query)
+      end
+    end
   end
 
   def count(entity, conditions = {})
@@ -91,11 +122,11 @@ class LearndotAPI
   end
 
   def find_training_credit_accounts(email)
-    api_get("/credit?email=#{email}")
+    api_get('/credit', {email: email})
   end
 
   def create_training_credit_account(conditions)
-    api_post("/credit", conditions)
+    api_post('/credit', conditions)
   end
 
   def adjust_training_credits(tc_account_id, conditions)
@@ -103,23 +134,13 @@ class LearndotAPI
   end
 
   def training_credit_account_history(tc_account_id)
-    response = api_get("/credit/#{tc_account_id}/transactions")
-    num_records = response['size']
+    endpoint = "/credit/#{tc_account_id}/transactions"
 
-    if num_records.is_a?(Integer) && num_records > 25
-      pages = (num_records / 25) + 1
-      # start at 2 since first call returned first page
-      for counter in 2..pages
-        puts "retrieving page #{counter} of #{pages}"
-        api_post(endpoint + "page=#{counter}&", conditions)['results'].each do | result |
-          response['results'] << result
-        end
-      end
+    page do |count|
+      api_get(endpoint, {page: count})
     end
-
-    hash_response(response)
   end
 
-  private :api_post, :api_get, :post_search, :hash_response, :get_token
+  private :api_post, :api_get, :hash_response, :get_token, :debug, :page
 
 end
