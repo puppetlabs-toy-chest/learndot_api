@@ -21,13 +21,13 @@ class Learndot::Events
         klass[:city]             = location['online'] ? location['name'] : location['address']['city']
         klass[:course_name]      = courses[klass['courseId']]['name']
         klass[:organizer]        = organizers[klass['organizerId']] ? organizers[klass['organizerId']]['_displayName_'] : ''
-        klass[:enrollment_count] = enrolled(class_id)
+        klass[:enrollment_count] = enrollment_count(class_id)
         klass[:start_time]       = Date.parse(klass['startTime'])
       end
     end
   end
 
-  def enrolled(class_id)
+  def enrollment_count(class_id)
     sessions = @api.search(:course_session, { 'eventId' => [class_id] })
 
     if ! sessions.empty?
@@ -40,6 +40,27 @@ class Learndot::Events
     end
 
     return count || 0
+  end
+
+  def enrolled(class_id)
+    sessions = @api.search(:course_session, { 'eventId' => [class_id] })
+    return [] if sessions.empty?
+
+    conditions = {
+      'id'     => sessions.collect { | k, cs | cs['enrolmentId'] },
+      'status' => ['TENTATIVE', 'APPROVED', 'CONFIRMED']
+    }
+    enrollments = @api.search(:enrolment, conditions)
+    return [] if enrollments.empty?
+
+    conditions = {
+      'id'     => enrollments.collect { | k, cs | cs['contactId'] },
+    }
+    contacts = @api.search(:contact, conditions)
+
+    contacts.collect do | k, cs |
+      { :id => cs['id'], :name => cs['_displayName_'], :email => cs['email'] }
+    end
   end
 
 end
