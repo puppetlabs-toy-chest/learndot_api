@@ -15,7 +15,7 @@ class Learndot::Events
       locations  = @api.search(:location, { 'id' => location_ids  })
       organizers = @api.search(:contact,  { 'id' => organizer_ids })
 
-      classes.each do | class_id, klass |
+      classes.collect do | class_id, klass |
         location = locations[klass['locationId']]
 
         klass[:city]             = location['online'] ? location['name'] : location['address']['city']
@@ -23,6 +23,10 @@ class Learndot::Events
         klass[:organizer]        = organizers[klass['organizerId']] ? organizers[klass['organizerId']]['_displayName_'] : ''
         klass[:enrollment_count] = enrollment_count(class_id)
         klass[:start_time]       = Date.parse(klass['startTime'])
+        klass[:end_time]         = Date.parse(klass['finalEndTime'])
+#        klass[:instructor]       = get_instructor(class_id)
+
+        klass
       end
     end
   end
@@ -40,6 +44,10 @@ class Learndot::Events
     end
 
     return count || 0
+  end
+
+  def get_instructor(class_id)
+    nil
   end
 
   def enrolled(class_id)
