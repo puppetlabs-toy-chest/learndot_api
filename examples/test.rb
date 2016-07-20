@@ -22,7 +22,7 @@ events = ld.events.retrieve(conditions)
 
 puts '   Date    |         Course                 |      Location               |  #'
 puts '------------------------------------------------------------------------------'
-events.each do |key, delivery|
+events.each do |delivery|
   printf("%10s | %-30s | %-27s | %2s\n",
       delivery[:start_time],
       delivery[:course_name].trim(30),
