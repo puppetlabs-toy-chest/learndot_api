@@ -24,7 +24,6 @@ class Learndot::Events
         klass[:enrollment_count] = enrollment_count(class_id)
         klass[:start_time]       = Date.parse(klass['startTime'])
         klass[:end_time]         = Date.parse(klass['finalEndTime'])
-#        klass[:instructor]       = get_instructor(class_id)
 
         klass
       end
@@ -46,10 +45,6 @@ class Learndot::Events
     return count || 0
   end
 
-  def get_instructor(class_id)
-    nil
-  end
-
   def enrolled(class_id)
     sessions = @api.search(:course_session, { 'eventId' => [class_id] })
     return [] if sessions.empty?
@@ -69,6 +64,11 @@ class Learndot::Events
     contacts.collect do | k, cs |
       { :id => cs['id'], :name => cs['_displayName_'], :email => cs['email'] }
     end
+  end
+
+  def update_notes(class_id, notes)
+    conditions = { 'notes' => notes }
+    @api.update(:public_course_event, conditions, class_id)
   end
 
 end
