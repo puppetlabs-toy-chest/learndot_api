@@ -18,6 +18,7 @@ class Learndot::Events
       classes.collect do | class_id, klass |
         location = locations[klass['locationId']]
 
+        klass[:learndot_id]      = klass['id'] # for consistency
         klass[:city]             = location['online'] ? location['name'] : location['address']['city']
         klass[:course_name]      = courses[klass['courseId']]['name']
         klass[:organizer]        = organizers[klass['organizerId']] ? organizers[klass['organizerId']]['_displayName_'] : ''
