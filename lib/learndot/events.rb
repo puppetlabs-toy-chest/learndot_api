@@ -25,7 +25,11 @@ class Learndot::Events
         klass[:enrollment_count] = enrollment_count(class_id)
         klass[:start_time]       = Date.parse(klass['startTime'])
         klass[:end_time]         = Date.parse(klass['finalEndTime'])
+<<<<<<< HEAD
         klass[:notes]            = klass['notes']
+=======
+        klass[:session_url]      = klass['sessionUrl']
+>>>>>>> f7a90bac80c52ecc885c097dbeddf696db72c9e7
 
         klass
       end
