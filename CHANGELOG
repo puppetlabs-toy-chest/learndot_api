@@ -1,3 +1,7 @@
+v0.2.1
+ * Added ability to retrieve session URLs
+ * Update session notes
+
 v0.2.0
 
 Refactored into a library. Please see example usage in the `examples directory.
