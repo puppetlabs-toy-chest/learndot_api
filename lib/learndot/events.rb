@@ -4,7 +4,7 @@ class Learndot::Events
   end
 
   def retrieve(conditions, options = {orderBy: 'startTime', asc: true})
-    classes = @api.search(:public_course_event, conditions, options)
+    classes = @api.search(:course_event, conditions, options)
 
     if !classes.empty?
       course_ids    = classes.collect { | k, c | c['courseId']    }.uniq
