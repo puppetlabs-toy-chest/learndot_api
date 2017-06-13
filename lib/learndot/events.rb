@@ -71,7 +71,7 @@ class Learndot::Events
 
   def update_notes(class_id, notes)
     conditions = { 'notes' => notes }
-    @api.update(:public_course_event, conditions, class_id)
+    @api.update(:course_event, conditions, class_id)
   end
 
 end
