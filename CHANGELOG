@@ -1,3 +1,6 @@
+v0.2.4
+ * Change endpoint used so that we can record private classes too
+
 v0.2.3
  * Support for "courses" object in learndot
 
