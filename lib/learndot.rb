@@ -19,8 +19,8 @@ class Learndot
   require 'learndot/api'
   attr_reader :api
 
-  def initialize(staging = false, debug = false)
-    @api = Learndot::API.new(nil, staging, debug)
+  def initialize(debug = false, staging = false)
+    @api = Learndot::API.new(nil, debug, staging)
   end
 
   def self.timestamp(time = nil)

@@ -5,7 +5,7 @@ require 'logger'
 class Learndot::API
   attr_writer :logger
 
-  def initialize(token = nil, staging = false, debug = false)
+  def initialize(token = nil, debug = false, staging = false)
     @logger           = Logger.new(STDOUT)
     @logger.level     = debug ? Logger::DEBUG : Logger::WARN
     @logger.formatter = proc { |level, date, name, msg|
