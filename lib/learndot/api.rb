@@ -5,7 +5,7 @@ require 'logger'
 class Learndot::API
   attr_writer :logger
 
-  def initialize(token = nil, url = nil, debug = false)
+  def initialize(token = nil, staging = false, debug = false)
     @logger           = Logger.new(STDOUT)
     @logger.level     = debug ? Logger::DEBUG : Logger::WARN
     @logger.formatter = proc { |level, date, name, msg|
@@ -14,7 +14,9 @@ class Learndot::API
 
     token ||= get_token
 
-    @base_url = url ? url : "https://learn.puppet.com/api/rest/v2"
+    # Set the base_url to the staging or production endpoint
+    @base_url = staging ? "https://puppetlabs-staging.trainingrocket.com/api/rest/v2/" : "https://learn.puppet.com/api/rest/v2"
+
     @headers  = {
       "TrainingRocket-Authorization"      => token,
       "Learndot Enterprise-Authorization" => token,
