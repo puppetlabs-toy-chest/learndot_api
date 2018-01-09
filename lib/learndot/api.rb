@@ -15,7 +15,7 @@ class Learndot::API
     token ||= get_token
 
     # Set the base_url to the staging or production endpoint
-    @base_url = staging ? "https://puppetlabs-staging.trainingrocket.com/api/rest/v2/" : "https://learn.puppet.com/api/rest/v2"
+    @base_url = staging ? "https://puppetlabs-staging.trainingrocket.com/api/rest/v2" : "https://learn.puppet.com/api/rest/v2"
 
     @headers  = {
       "TrainingRocket-Authorization"      => token,
