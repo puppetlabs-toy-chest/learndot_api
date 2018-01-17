@@ -1,3 +1,6 @@
+v0.2.5
+ * Add support for connecting to staging environment
+
 v0.2.4
  * Change endpoint used so that we can record private classes too
 
