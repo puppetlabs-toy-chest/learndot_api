@@ -7,7 +7,7 @@ require 'logger'
 HTTP = GraphQL::Client::HTTP.new("https://api.learndot.io/graphql/") do
   def headers(context)
     {
-      "X-API-KEY" => "<token>"
+      "X-API-KEY" => ENV['LEARNDOT_TOKEN_V3']
     }
   end
 end
