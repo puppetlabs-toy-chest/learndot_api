@@ -1,0 +1,187 @@
+{
+  "result": {
+    "UUID": {
+      "type": "string"
+    },
+    "_displayName_": {
+      "type": "string"
+    },
+    "_keyword_": {
+      "type": "string"
+    },
+    "banner": {
+      "type": "string"
+    },
+    "created": {
+      "type": "string"
+    },
+    "createdById": {
+      "type": "number"
+    },
+    "customField01": {
+      "type": "string"
+    },
+    "customField02": {
+      "type": "string"
+    },
+    "customField03": {
+      "type": "string"
+    },
+    "customField04": {
+      "type": "string"
+    },
+    "customField05": {
+      "type": "string"
+    },
+    "customField06": {
+      "type": "string"
+    },
+    "customField07": {
+      "type": "string"
+    },
+    "customField08": {
+      "type": "string"
+    },
+    "customField09": {
+      "type": "string"
+    },
+    "customField10": {
+      "type": "string"
+    },
+    "deprecatedBy": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "duration": {
+      "type": "object",
+      "properties": {
+        "days": {
+          "type": "integer"
+        },
+        "minutesPerDay": {
+          "type": "integer"
+        }
+      }
+    },
+    "expiryDays": {
+      "type": "integer"
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "type": "any"
+      }
+    },
+    "generateCertificate": {
+      "type": "string",
+      "enum": [
+        "DEFAULT",
+        "YES",
+        "NO"
+      ]
+    },
+    "generateProofOfCompletion": {
+      "type": "string",
+      "enum": [
+        "DEFAULT",
+        "YES",
+        "NO"
+      ]
+    },
+    "id": {
+      "type": "number"
+    },
+    "language": {
+      "type": "string"
+    },
+    "logo": {
+      "type": "string"
+    },
+    "modified": {
+      "type": "string"
+    },
+    "modifiedById": {
+      "type": "number"
+    },
+    "name": {
+      "type": "string"
+    },
+    "orderNumber": {
+      "type": "integer"
+    },
+    "price": {
+      "type": "object",
+      "properties": {
+        "amount": {
+          "type": "number"
+        },
+        "currency": {
+          "type": "string"
+        }
+      }
+    },
+    "primaryCategoryId": {
+      "type": "number"
+    },
+    "providerId": {
+      "type": "number"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "operations": {
+            "type": "array",
+            "items": {
+              "type": "any"
+            }
+          },
+          "restriction": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      }
+    },
+    "salesforceProductId": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ENABLED",
+        "ACTIVE_COMPONENT",
+        "DISABLED"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "taxJurisdiction": {
+      "type": "string",
+      "enum": [
+        "EVENT",
+        "CUSTOMER",
+        "PAYMENT",
+        "SHIPPING"
+      ]
+    },
+    "urlName": {
+      "type": "string"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": [
+        "PUBLIC",
+        "HIDDEN",
+        "MEMBER",
+        "DEPRECATED",
+        "CUSTOM"
+      ]
+    }
+  },
+  "url": "https://learn.puppet.com/api/rest/v2/manage/learning_component/describe"
+}
