@@ -60,9 +60,14 @@ class Learndot::API
 
   ############### Private methods ###############
   def get_token
+    return ENV['LEARNDOT_TOKEN'] if ENV.include? 'LEARNDOT_TOKEN'
     path = File.expand_path('~/.learndot_token')
-
-    File.exists?(path) ? File.read(path).strip : ENV['LEARNDOT_TOKEN']
+    
+    begin
+      return File.read(path).strip
+    rescue => e
+      raise "API token (in env variable or #{path}) not readable. Exiting."
+    end
   end
 
   def api_post(endpoint, conditions = {}, query = {})
