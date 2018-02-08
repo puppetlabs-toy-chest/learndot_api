@@ -1,3 +1,9 @@
+v0.3.0
+ * Added PoC code for supporting v3 API based on GraphQL
+ * Added some common schemas and v3 schema
+ * Support for content_component objects
+ * Changed token lookup order to use ENV
+
 v0.2.5
  * Add support for connecting to staging environment
 
