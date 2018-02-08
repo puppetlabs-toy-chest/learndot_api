@@ -66,8 +66,7 @@ class Learndot::API
     begin
       return File.read(path).strip
     rescue => e
-      puts 'API token not found. Exiting'
-      puts e.message
+      raise "API token (in env variable or #{path}) not readable. Exiting."
     end
   end
 
