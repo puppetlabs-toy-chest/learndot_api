@@ -4,11 +4,6 @@
   "issues": "https://tickets.puppetlabs.com/projects/TRAINTECH/issues/",
   "people": [
     {
-      "github": "binford2k",
-      "email": "ben.ford@puppet.com",
-      "name": "Ben Ford"
-    },
-    {
       "github": "marrero984",
       "email": "michael.marrero@puppet.com",
       "name": "Michael Marrero"
