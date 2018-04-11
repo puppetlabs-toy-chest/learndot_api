@@ -20,6 +20,8 @@ class Learndot
   attr_reader :api
 
   def initialize(debug = false, staging = false)
+    debug ||= false
+    staging ||= false
     @api = Learndot::API.new(nil, debug, staging)
   end
 
