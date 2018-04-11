@@ -12,7 +12,9 @@ class Learndot::API
       "#{level}: #{msg}\n"
     }
 
-    token ||= get_token
+    token   ||= get_token
+    debug   ||= false
+    staging ||= false
 
     # Set the base_url to the staging or production endpoint
     case staging
