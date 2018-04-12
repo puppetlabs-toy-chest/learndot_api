@@ -2,7 +2,7 @@ require 'date'
 
 Gem::Specification.new do |s|
   s.name         = 'learndot_api'
-  s.version      = '0.3.0'
+  s.version      = '0.3.1'
   s.date         = Date.today.to_s
   s.summary      = 'Learndot API'
   s.homepage     = "https://github.com/puppetlabs/learndot_api"
